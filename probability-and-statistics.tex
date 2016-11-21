@@ -1,36 +1,168 @@
-\documentclass[11pt]{amsart}
-\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
-\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
-%\geometry{landscape}                % Activate for for rotated page geometry
-\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
-\usepackage{graphicx}
+\documentclass{article}
 \usepackage{amssymb}
-\usepackage{epstopdf}
-\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\usepackage{fuzz}
+\usepackage{url}
 
 \title{Probability and Statistics}
 \author{Arthur Ryman}
-%\date{}                                           % Activate to display a given date or no date
+\date{\today}
 
 \begin{document}
+\bibliographystyle{acm}
+
 \maketitle
+
+\begin{abstract}
+This article provides a precise formulation of the basic concepts of Probability and Statistics
+using the language of category theory and typed set theory.
+The main benefit of viewing the subject in terms of category theory is that it unifies and simplifies many concepts.
+For example, random variables and p-values are seen to be arrows in the category of probability spaces.
+The main benefit of using typed set theory is that it allows one to make explicit many aspects of the structure of probability spaces and thereby clarifies the subject.
+All formal definitions in this article are encoded using Z Notation and have been validated using the \fuzz\ type-checker.
+\end{abstract}
+
 \section{Introduction}
 
-This article presents the basic concepts of probability and statistics from a mathematical point of view.
-The approach here differs from the usual approach found in most textbooks in that it raises the level
-of abstraction by viewing the subject matter in the light of category theory. 
-The hope is that this point of view simplifies the subject by providing a concise unifying conceptual framework.
+This goal of this article is to present a precise formulation of the the basic concepts of probability and statistics.
+The approach taken here differs in several ways from the approach found in many textbooks.
 
-The main concept for unifying the subject is that of a probability space. 
-Probability spaces are the objects of a category and random variables are its morphisms.
+\subsection{Embracing the Mathematical Essence of Probability and Statistics}
 
-As an example of the utility of these concepts, consider the notion of a p-value.
-The standard definition of a p-value is a function that assigns to a measurement the probability of observing a measurement as extreme or more extreme than the given value.
+The approach taken here is mathematical in the sense that all concepts are defined precisely using the language of mathematics.
+The reader is expected to be comfortable with the concept of a set, and know about the natural numbers, real numbers, and other important sets.
+
+This use of precise mathematical language contrasts with the usual, more relaxed, approach taken in books aimed at practitioners, 
+especially those in the life sciences, commerce, and other domains where the practitioners are not expected to have mathematical backgrounds.
+
+For example, consider \cite{mendenhall:ips14}, a textbook used in courses on introductory data analysis.
+The textbook first acknowledges that statistics is a branch of mathematics and warns the reader that it can be overwhelming
+\cite[p3]{mendenhall:ips14}:
+
+\begin{quotation}
+Statistics is a branch of mathematics that has applications in almost every facet of our daily life. It is a new and unfamiliar language for most people, however, and, like any new language, statistics can seem overwhelming at first glance. But once the language of statistics is learned and understood, it provides a powerful tool for data analysis in many different fields of application.
+\end{quotation}
+
+The textbook authors then go on to say that the subject involves many new mathematical terms and concepts, 
+but the student can safely learn how to apply them simply
+by following the numerical examples and common-sense arguments provided in the textbook \cite[p5]{mendenhall:ips14}:
+
+\begin{quotation}
+As you begin to study statistics, you will find that there are many new terms and concepts to be mastered. Since statistics is an applied branch of mathematics, many of these basic concepts are mathematical---developed and based on results from calculus or higher mathematics. However, you do not have to be able to derive results in order to apply them in a logical way. In this text, we use numerical examples and common-sense arguments to explain statistical concepts, rather than more complicated mathematical arguments.
+\end{quotation}
+
+Here the textbook authors seem to equate mathematical discourse with deriving results, aka proofs.
+However, there is much more to mathematics than that.
+Mathematics provides a language for identifying and precisely defining concepts.
+Mathematics allows one to build up a conceptual vocabulary in which new concepts are defined in terms of previously defined ones
+or, ultimately, in terms the foundational concepts of set theory.
+It is this conceptual vocabulary for Probability and Statistics that is somewhat lacking in most practitioner-oriented textbooks.
+In contrast, this article takes the position that precise definitions, rather than being pedantic, make the subject easier to understand.
+
+\subsection{The Category of Probability Spaces}
+
+One of the great organizing principles of mathematics is that rather than study mathematical objects in isolation it is more illuminating to study 
+families of structurally similar objects and the mappings between them that preserve their structure.
+A structure-preserving mapping from one object to another is generically referred to as a {\it morphism} or, more simply an {it arrow}.
+Such a family of objects and arrows is called a {\it category}.
+
+For example, linear algebra is the study of the category of vector spaces and linear transformations,
+group theory is the study of the category of groups and homomorphisms, and
+topology is the study of the category of topological spaces and continuous mappings.
+
+Viewed through the lens of category theory, probability and statistics is the study of the category of {\it probability spaces}
+and {\it random variables}.
+
+Many important concepts can be simply expressed in the language of category theory.
+As an illustration of this point in the category of probability spaces, consider the usual textbook definition of a {\it p-value}:
+
+\begin{quotation}
+A p-value is a function that assigns to a given measurement the probability of observing a measurement as or more extreme than the given value.
+\end{quotation}
+
 This definition is somewhat hard to grasp at first.
 In terms of category theory, a p-value is simply a morphism from a probability space to the uniform probability space on the unit interval.
-Here the uniform probability space on the unit interval is a very important important object in the category of probability spaces, and p-values are simply morphisms to it.
+The uniform probability space on the unit interval is an important object in the category of probability spaces.
 
-The underlying thesis of this article is that every important concept in probability and statistics has a natural and simple interpretation in terms of  category theory.
+In general, morphisms to and from important objects are also important.
+One of the underlying assumptions of this article is that every important concept in probability and statistics has a natural and simple interpretation in terms of  category theory.
+
+Category theory also teaches us that mappings between categories are important objects.
+In fact, much of the motivation behind category theory came from the subject of {\it algebraic topology} which can be viewed as the study of mappings from the category of topological spaces to various algebraic categories.
+The recent development of {\it topological data analysis} should provide ample motivation for data scientists to understand the ideas behind topology and category theory.
+
+\subsection{Structures and Types}
+
+Many interesting mathematical objects have significant structure. 
+For example, a topological space is a structure that consists of a set of points and a {\it topology} on that set of points.
+A topology is a collection of sets, referred to as {\it open sets}, that satisfy certain axioms.
+Normal mathematical discourse defines structure informally.
+In contrast, the approach taken here is to define structure using a formal language, namely {\it Z Notation} \cite{spivey:zrm}.
+
+Using Z Notation, each structure is defined as a {\it type}.
+New types are constructed by combining previously constructed types using standard mathematical operations such as forming cartesian products and power sets.
+Z Notation is based on {\it typed set theory} which was introduced by Bertrand Russell as a way to avoid certain paradoxes in the foundations
+of set theory.
+Anyone with some computer programming experience should be very comfortable with types since they are closely related to the datatypes
+found in most programming languages.
+
+The benefit of using a formal language to define types is that all definitions can be automatically type-checked.
+This ensures that all required concepts are explicitly defined and that all statements makes sense.
+Informally, a type-checker will make sure that you are not trying to add apples to oranges.
+
+The \LaTeX\ source for this article has been type-checked using the \fuzz\ type-checker \cite{spivey:fuzz}
+and is available in a GitHub repository \cite{agryman:probability-and-statistics}.
+
+\section{Probability and Probability Spaces}
+
+\subsection{Probability}
+
+% the set of real numbers
+\newcommand{\real}{\mathbb{R}}
+
+%%\begin{zed}
+%%	[\real]
+%%\end{zed}
+
+Let $\real$ denote the set of all real numbers.
+A {\it probability} $p \in \real$ is a real number between $0$ and $1$ inclusive.
+The set of all probabilities is denoted by $I$, the unit interval on the real number line.
+
+% the real number zero
+\newcommand{\realzero}{0}
+
+% the real number one
+\newcommand{\realone}{1}
+
+%%\begin{axdef}
+%%	\realzero, \realone : \real
+%%\end{axdef}
+
+% the real comparison operators
+\newcommand{\reallt}{<}
+\newcommand{\realleq}{\leq}
+\newcommand{\realgt}{>}
+\newcommand{\realgeq}{\geq}
+%%inrel \reallt \realleq \realgt \realgeq
+
+%%\begin{axdef}
+%%	\_ \reallt \_, \_ \realleq \_, \_ \realgt \_, \_ \realgeq \_ : \real \rel \real
+%%\end{axdef}
+
+\begin{zed}
+	I == \{~ p : \real |  \realzero \realleq p \realleq \realone   ~\}
+\end{zed}
+
+There are two main interpretations of probability, namely as a {\it relative frequency} or as a {\it degree of belief}.
+The frequency interpretation applies to processes, such as flipping a coin, that can be repeated many times.
+In this case the probability of an outcome is the expected ratio of the number of times the outcome occurs to the total number of times the process is repeated as the number
+of repetitions becomes large.
+The degree of belief interpretation applies to situations, such as criminal trials, which cannot be repeated many times, and where a judgement has to be made based on evidence.
+Both interpretations are useful and we model both using the same type of object, namely as a {\it probability space}.
+
+\subsection{Probability Spaces}
+
+
+
 
 \section{Measurable Spaces}
 
@@ -68,13 +200,9 @@ A measure space satisfies the following axioms:
 \item The measure of the union of a countable sequence of disjoint measurable sets is the sum of the measures of the sets in the sequence: $\forall f: N -> A | \forall i, j : N | i \neq j => A_i \cap A_j = \emptyset, m(\cup_i A_i) = \Sigma_i m(A_i)$
 \end{itemize}
 
-For example, if X is a countable set then m(Y) = #Y is a measure.
+For example, if X is a countable set then m(Y) = \#Y is a measure.
 
 
-
-
-%\subsection{}
-
-
+\bibliography{probability-and-statistics-refs}
 
 \end{document}  
