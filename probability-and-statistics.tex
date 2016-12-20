@@ -1,6 +1,7 @@
 \documentclass{article}
-\usepackage{amssymb}
+\usepackage{amssymb,amsmath,amsthm}
 \usepackage{fuzz}
+\usepackage{tikz-cd}
 \usepackage{url}
 
 \title{Probability and Statistics}
@@ -13,7 +14,7 @@
 \maketitle
 
 \begin{abstract}
-This article provides a precise formulation of the basic concepts of Probability and Statistics
+This article provides a precise formulation of the basic concepts of probability and statistics
 using the language of category theory and typed set theory.
 The main benefit of viewing the subject in terms of category theory is that it unifies and simplifies many concepts.
 For example, random variables and p-values are seen to be arrows in the category of probability spaces.
@@ -32,7 +33,7 @@ The approach taken here is mathematical in the sense that all concepts are defin
 The reader is expected to be comfortable with the concept of a set, and know about the natural numbers, real numbers, and other important sets.
 
 This use of precise mathematical language contrasts with the usual, more relaxed, approach taken in books aimed at practitioners, 
-especially those in the life sciences, commerce, and other domains where the practitioners are not expected to have mathematical backgrounds.
+especially those in the life sciences, commerce, and other domains whose practitioners are not expected to have mathematical backgrounds.
 
 For example, consider \cite{mendenhall:ips14}, a textbook used in courses on introductory data analysis.
 The textbook first acknowledges that statistics is a branch of mathematics and warns the reader that it can be overwhelming
@@ -55,28 +56,30 @@ However, there is much more to mathematics than that.
 Mathematics provides a language for identifying and precisely defining concepts.
 Mathematics allows one to build up a conceptual vocabulary in which new concepts are defined in terms of previously defined ones
 or, ultimately, in terms the foundational concepts of set theory.
-It is this conceptual vocabulary for Probability and Statistics that is somewhat lacking in most practitioner-oriented textbooks.
+It is this conceptual vocabulary for probability and statistics that is somewhat lacking in most practitioner-oriented textbooks.
 In contrast, this article takes the position that precise definitions, rather than being pedantic, make the subject easier to understand.
 
 \subsection{The Category of Probability Spaces}
 
 One of the great organizing principles of mathematics is that rather than study mathematical objects in isolation it is more illuminating to study 
 families of structurally similar objects and the mappings between them that preserve their structure.
-A structure-preserving mapping from one object to another is generically referred to as a {\it morphism} or, more simply an {it arrow}.
+A structure-preserving mapping from one object to another is generically referred to as a {\it morphism} or, more simply, as an {\it arrow}.
 Such a family of objects and arrows is called a {\it category}.
 
-For example, linear algebra is the study of the category of vector spaces and linear transformations,
-group theory is the study of the category of groups and homomorphisms, and
-topology is the study of the category of topological spaces and continuous mappings.
+For example, linear algebra is the study of vector spaces and their linear transformations,
+group theory is the study of groups and their homomorphisms, and
+topology is the study of topological spaces and their continuous mappings.
+Each of these collections of objects and arrows form a category.
 
-Viewed through the lens of category theory, probability and statistics is the study of the category of {\it probability spaces}
+Viewed through the lens of category theory, probability and statistics is the study of {\it probability spaces}
 and {\it random variables}.
 
-Many important concepts can be simply expressed in the language of category theory.
-As an illustration of this point in the category of probability spaces, consider the usual textbook definition of a {\it p-value}:
+Many important concepts can be expressed simply in the language of category theory.
+As an illustration of this point in the category of probability spaces, consider the following typical textbook definition of p-value
+\cite[p351]{mendenhall:ips14}:
 
 \begin{quotation}
-A p-value is a function that assigns to a given measurement the probability of observing a measurement as or more extreme than the given value.
+The {\it p-value} is the probability of observing a test statistic as extreme as or more extreme than the observed value, if in fact $H_0$ is true.
 \end{quotation}
 
 This definition is somewhat hard to grasp at first.
@@ -86,9 +89,10 @@ The uniform probability space on the unit interval is an important object in the
 In general, morphisms to and from important objects are also important.
 One of the underlying assumptions of this article is that every important concept in probability and statistics has a natural and simple interpretation in terms of  category theory.
 
-Category theory also teaches us that mappings between categories are important objects.
-In fact, much of the motivation behind category theory came from the subject of {\it algebraic topology} which can be viewed as the study of mappings from the category of topological spaces to various algebraic categories.
-The recent development of {\it topological data analysis} should provide ample motivation for data scientists to understand the ideas behind topology and category theory.
+Category theory also teaches us that structure-preserving mappings between categories are important objects.
+A structure-preserving mapping from one category to another is called a {\it functor}.
+In fact, much of the motivation behind category theory came from the subject of algebraic topology which can be viewed as the study of functors from the category of topological spaces to various algebraic categories.
+The recent development of topological data analysis provides another motivation for data scientists to understand the ideas behind topology and category theory.
 
 \subsection{Structures and Types}
 
@@ -107,7 +111,7 @@ found in most programming languages.
 
 The benefit of using a formal language to define types is that all definitions can be automatically type-checked.
 This ensures that all required concepts are explicitly defined and that all statements makes sense.
-Informally, a type-checker will make sure that you are not trying to add apples to oranges.
+Stated informally, a type-checker makes sure that you are not trying to add apples to oranges.
 
 The \LaTeX\ source for this article has been type-checked using the \fuzz\ type-checker \cite{spivey:fuzz}
 and is available in a GitHub repository \cite{agryman:probability-and-statistics}.
@@ -116,16 +120,52 @@ and is available in a GitHub repository \cite{agryman:probability-and-statistics
 
 \subsection{Probability}
 
+The concept of probability is useful for modelling situations in which we have uncertain knowledge.
+For example, when we flip a coin we are uncertain which side, heads or tails, will land face up.
+Imagine performing an experiment in which we flip the coin $n$ times.
+Let $n_h$ and $n_t$ be the number of times that heads and tails occur.
+Clearly we have:
+\begin{eqnarray}
+	0 \le n_h \le n \\
+	0 \le n_t \le n \\
+	n_h + n_t = n
+\end{eqnarray}
+
+Let $f_h$ and $f_t$ be the relative frequencies of heads and tails:
+\begin{eqnarray}
+	f_h = n_h / n \\
+	f_t = n_t / n
+\end{eqnarray}
+
+The relative frequencies satisfy:
+\begin{eqnarray}
+	0 \le f_h \le 1 \\
+	0 \le f_t \le 1 \\
+	f_h + f_t = 1
+\end{eqnarray}
+
+In the long run we expect the relative frequency of occurrence for each side to approach some limiting value, called the {\it probability}
+of occurrence of the side.
+This view of probability is called the {\it frequentist} interpretation.
+Let $p_h$ and $p_t$ denote the probability of occurrence of heads and tails:
+\begin{eqnarray}
+	\lim_{n \rightarrow \infty} f_h = p_h \\
+	\lim_{n \rightarrow \infty} f_t = p_t
+\end{eqnarray}
+These probabilities satisfy:
+\begin{eqnarray}
+	0 \le p_h \le 1 \\
+	0 \le p_t \le 1 \\
+	p_h + p_t = 1
+\end{eqnarray}
+If the coin is fair then $p_h = p_t = 0.5$ since half the time the coin will land heads and half the time it will land tails. 
+
 % the set of real numbers
 \newcommand{\real}{\mathbb{R}}
 
 %%\begin{zed}
 %%	[\real]
 %%\end{zed}
-
-Let $\real$ denote the set of all real numbers.
-A {\it probability} $p \in \real$ is a real number between $0$ and $1$ inclusive.
-The set of all probabilities is denoted by $I$, the unit interval on the real number line.
 
 % the real number zero
 \newcommand{\realzero}{0}
@@ -148,41 +188,288 @@ The set of all probabilities is denoted by $I$, the unit interval on the real nu
 %%	\_ \reallt \_, \_ \realleq \_, \_ \realgt \_, \_ \realgeq \_ : \real \rel \real
 %%\end{axdef}
 
+In general, a probability is any real number between $0$ and $1$.
+Let $\real$ denote the set of all real numbers and
+let $I$ denote the unit interval on the real number line.
 \begin{zed}
-	I == \{~ p : \real |  \realzero \realleq p \realleq \realone   ~\}
+	I == \{~ x : \real |  \realzero \realleq x \realleq \realone   ~\}
+\end{zed}
+$I$ is therefore also the set of all probabilities.
+
+Now let's formalize the coin flipping experiment.
+The outcome of a coin flip is either heads or tails.
+Let $Flip$ denote the set of coin flip outcomes:
+\begin{zed}
+	Flip ::= Head | Tail
 \end{zed}
 
-There are two main interpretations of probability, namely as a {\it relative frequency} or as a {\it degree of belief}.
-The frequency interpretation applies to processes, such as flipping a coin, that can be repeated many times.
-In this case the probability of an outcome is the expected ratio of the number of times the outcome occurs to the total number of times the process is repeated as the number
-of repetitions becomes large.
-The degree of belief interpretation applies to situations, such as criminal trials, which cannot be repeated many times, and where a judgement has to be made based on evidence.
-Both interpretations are useful and we model both using the same type of object, namely as a {\it probability space}.
+% the real arithmetic operators
+\newcommand{\realadd}{+}
+\newcommand{\realsub}{-}
+\newcommand{\realmul}{*}
+\newcommand{\realdiv}{/}
+%%inop \realadd \realsub 3
+%%inop \realmul \realdiv 4
+
+%%\begin{axdef}
+%%	\_ \realadd \_, \_ \realsub \_, \_ \realmul \_ : \real \cross \real \fun \real \\
+%%	\_ \realdiv \_ : \real \cross \real \pfun \real
+%%\end{axdef}
+
+We can model a coin by assigning a probability to each of the flip outcomes such that the total probability is $1$.
+Such an assignment of probabilities to outcomes is called a  {\it discrete probability distribution} or a {\it probability mass function}.
+Let $Coin$ denote the set of all probability mass functions on the set of coin flips:
+\begin{zed}
+	Coin == \{~ p : Flip \fun I | p(Head) \realadd p(Tail) = \realone ~\}
+\end{zed}
+
+\newcommand{\realonehalf}{0.5}
+
+%%\begin{axdef}
+%%	\realonehalf : \real
+%%\end{axdef}
+
+For example, let $fairCoin$ denote the probability assignments for a fair coin:
+\begin{axdef}
+	fairCoin : Coin
+\where
+	fairCoin(Head) = fairCoin(Tail) = \realonehalf
+\end{axdef}
+
+A probability mass function is adequate to describe situations in which the set of outcomes is finite or countable since there is a well-defined
+mathematical meaning to adding up a countable set of numbers---that is the subject matter of the theory of convergent sequences and series.
+However, in many important situations the set of outcomes is uncountable, for example when an outcome is a measurement,
+such as weight or height, that can take on any real number in some interval. 
+There is no well-defined mathematical meaning to adding up an uncountable set of non-zero numbers.
+Rather, the generalization of addition on uncountable sets is integration, which leads to the concept of a continuous probability distribution or, more generally, a probability measure.
+
+\subsection{Events}
+
+The first step towards a more general framework for probability is to focus on sets of outcomes, rather than individual outcomes.
+A set of outcomes is referred to as an {\it event}. 
+Let $X$ be an arbitrary, possibly uncountable, set of outcomes.
+The empty set is the {\it impossible event} since it contains no outcomes. Its probability is always $0$.
+The set $X$ is the {\it certain event} since it contains every outcome. Its probability is always $1$.
+However, when it comes to uncountable sets of outcomes, some restrictions must be placed on what constitutes on event in order to be able to
+assign a probability to each event in a mathematically consistent way.
+
+\newcommand{\calE}{{\cal E}}
+
+Let $\cal E$ be a collection of events on $X$.
+\begin{equation}
+	{\cal E} \subseteq \power X
+\end{equation}
+The following natural restrictions on $\cal E$ are sufficient to enable probabilities to be assigned in a mathematically consistent way.
+
+A collection of events must always include the impossible event and the certain event since these always have a well-defined probability.
+\begin{eqnarray}
+	\emptyset \in {\cal E} \\
+	X \in {\cal E}
+\end{eqnarray}
+
+Suppose $A$ is an event.
+Since $A$ can be assigned a probability, so can its complement $ X \setminus A$, namely $1$ minus the probability of $A$.
+\begin{equation}
+	A \in {\cal E} \implies X \setminus A \in {\cal E}
+\end{equation}
+
+Finally, let ${\cal A} = \{A_1, A_2, \ldots\}$ be a countable set of events. 
+The union and intersection of $\cal A$ must also be events.
+The restriction to countable sets of events is natural because the probability of the union of a collection of mutually disjoint events must be the
+sum of the probabilities of the individual events, but we can only assign a well-defined mathematical meaning to the sum of countable sequences of non-zero numbers.
+\begin{eqnarray}
+	\forall i \in \nat @ A_i \in {\cal E} \implies \bigcup_{i \in \nat} A_i \in {\cal E} \\
+	\forall i \in \nat @ A_i \in {\cal E} \implies \bigcap_{i \in \nat} A_i \in {\cal E} 
+\end{eqnarray}
+Note that there is no requirement that uncountable unions and intersections of events must also be events.
+
+\subsection{$\sigma$-Algebras}
+
+The above restrictions on events define a mathematical structure called a $\sigma$-algebra of sets on $X$.
+In general, there are many $\sigma$-algebras on a given set.
+Let $SigmaAlgebra[X]$ denote the set of all $\sigma$-algebras on the set $X$.
+\begin{gendef}[X]
+	SigmaAlgebra : \power (\power (\power X))
+\where
+	\forall \calE : SigmaAlgebra @ X \in \calE
+\also
+	\forall \calE : SigmaAlgebra @ \forall A : \calE @ X \setminus A \in \calE
+\also
+	\forall \calE : SigmaAlgebra @ \forall A : \seq \calE @ \bigcup (\ran A) \in \calE
+\end{gendef}
+\begin{itemize}
+\item $X$ is in the algebra.
+\item If $A$ is in the algebra then its complement is in the algebra.
+\item If $A_1, A_2, \ldots$ are in the algebra then their union is in the algebra.
+\end{itemize}
+
+The empty set is always in the algebra because it is the complement of $X$, which is always in the algebra.
+\begin{equation}
+	\forall \calE : SigmaAlgebra[X] @ \emptyset \in \calE
+\end{equation}
+
+The intersection of a countable collection of sets can be expressed as the complement of the union of a countable
+collection of complements of sets.
+\begin{eqnarray}
+	\bigcap (\ran A)	& = & X \setminus (X \setminus \bigcap (\ran A)) \\
+				& = & X \setminus (X \setminus (A_1 \cap A_2 \cap \ldots)) \nonumber \\
+				& = & X \setminus ((X \setminus A_1) \cup (X \setminus A_2) \cup \ldots) \nonumber
+\end{eqnarray}
+Therefore, the intersection of a countable set of members of the algebra is also in the algebra.
+\begin{equation}
+	\forall \calE : SigmaAlgebra[X] @ \forall A : \seq \calE @ \bigcap (\ran A) \in \calE
+\end{equation}
+
+It is easy to see that if $X$ is any set then $\power X$, the set of all subsets of $X$, is a $\sigma$-algebra.
+\begin{equation}
+	\power X \in SigmaAlgebra[X]
+\end{equation}
+
+Similarly, the collection $\{ \emptyset, X \}$ is a $\sigma$-algebra.
+\begin{equation}
+	\{ \emptyset, X \} \in SigmaAlgebra[X]
+\end{equation}
+
+\subsection{Measurable Spaces}
+
+A {\it measurable space} is a structure that consists of a set of points $X$ and a $\sigma$-algebra $\calE$ on $X$.
+The members of $\calE$ are referred to as {\it measurable sets}.
+Let $U$ be some universe from which the points of measurable spaces are drawn and let $MeasurableSpace[U]$ denote the set of all measurable spaces from that universe.
+\begin{schema}{MeasurableSpace}[U]
+	points : \power U \\
+	sets : \power (\power U)
+\where
+	sets \in SigmaAlgebra[points]
+\end{schema}
+\begin{itemize}
+\item The measurable sets form a $\sigma$-algebra on the points of the space.
+\end{itemize}
+
+
+Category theory teaches us that important mathematical structures are connected to each other through structure-preserving maps.
+What are the structure-preserving maps between measurable spaces?
+To answer this question, note the similarity between measurable spaces and topological spaces.
+Both structures are defined by a set of points and a distinguished collection of subsets of points.
+In topological spaces, the distinguished collection of subsets are called the open sets and the structure-preserving maps are the continuous
+functions, namely those maps for which the inverse image of an open set is open.
+This definition applies directly to measurable spaces.
+
+A {\it measurable map} from one measurable space to another is a function from the points of one to the other such that the inverse image
+of a measurable set is measurable.
+Let $U$ and $V$ be universes of points and let $R$ and $S$ be measurable spaces on $U$ and $V$. 
+Let $MeasurableMap[U,V]$ denote the set of all measurable maps from $R$ to $S$.
+$S$ is called the domain of the map and $T$ is called the codomain.
+\begin{schema}{MeasurableMap}[U,V]
+	domain : MeasurableSpace[U] \\
+	codomain : MeasurableSpace[V] \\
+	map : U \pfun V
+\where
+	map \in domain.points \fun codomain.points
+\also
+	\forall A : codomain.sets @ map\inv\limg A \rimg \in domain.sets
+\end{schema}
+\begin{itemize}
+\item The map sends the points of the domain to the point of the codomain.
+\item The inverse images of each measurable set in the codomain is a measurable set in the domain.
+\end{itemize}
+
+Category theory further teaches us that certain pairs of so-called {\it composable} maps can be composed to form other maps.
+Let $R$, $S$, and $T$ be measurable spaces and let $f$ and $g$ be measurable maps from $R$ to $S$ and from $S$ to $T$.
+Then $g$ and $f$ are composable.
+Let $ComposableMM$ denote the set of all pairs $(g,f)$ of measurable maps that are composable.
+\begin{gendef}[U,V,W]
+	ComposableMM : \\
+\t1		MeasurableMap[V,W] \rel MeasurableMap[U,V]
+\where
+	ComposableMM = \\
+\t1		\{~  g : MeasurableMap[V,W] ; f : MeasurableMap[U,V] | \\
+\t2			g.domain = f.codomain ~\}
+\end{gendef}
+\begin{itemize}
+\item  The domain of $g$ must be the codomain of $f$.
+\end{itemize}
+
+The composition $h$ of $g$ and $f$ is the measurable map from $R$ to $T$ obtained by first applying $f$ and then applying $g$.
+The composition is written $h = g \circ f$. 
+Let $CompositionMM$ denote the relationship between $f$, $g$, and $h$.
+\begin{schema}{CompositionMM}[U,V,W]
+	f: MeasurableMap[U,V] \\
+	g: MeasurableMap[V,W] \\
+	h: MeasurableMap[U,W]
+\where
+	g.domain = f.codomain
+\also
+	h.domain = f.domain \\
+	h.codomain = g.codomain \\
+	h.map = g.map \circ f.map
+\end{schema}
+\begin{itemize}
+\item $(g, f)$ must be composable.
+\item $h$ is uniquely determined by $f$ and $g$.
+\end{itemize}
+
+Note that the composition $g \circ f$ is indeed a measurable map. 
+Let $A$ be a measurable set in $T$.
+Then $g\inv\limg A \rimg$ is a measurable set in $S$ because $g$ is measurable
+and $f\inv\limg (g\inv\limg A \rimg) \rimg$ is a measurable set in $R$ because $f$ is measurable.
+But $(g\circ f)\inv\limg A \rimg = f\inv\limg (g\inv\limg A \rimg) \rimg$ so $g \circ f$ is measurable.
+
+Let $ComposeMM$ denote the operation that maps each composable pair $(g,f)$ to $h = g \circ f$.
+\begin{gendef}[U,V,W]
+	ComposeMM : \\
+\t1		ComposableMM[U,V,W] \fun MeasurableMap[U,W]
+\where
+	ComposeMM = \\
+\t1		\{~  CompositionMM[U,V,W] @ (g, f) \mapsto h ~\}
+\end{gendef}
+ 
+It is often useful to illustrate the relationships between objects and maps in a category using {\it commutative diagrams}
+like the one below.
+The nodes of the diagram are objects, e.g. measurable spaces, and the arrows between the nodes are maps, e.g. measurable maps.
+The diagram is commutative when the map that results from composing the maps along a path is independent of the path.
+The following diagram is commutative by definition of composition.
+\begin{equation}
+\begin{tikzcd}
+R \arrow{r}{f} \arrow{rd}[swap]{h = g \circ f}
+				&S \arrow{d}{g} \\
+				&T
+\end{tikzcd}
+\end{equation} 
+
+There are two other properties that are required for a set of objects and maps to form a category, namely that the composition operation
+is associative and that each object has an associated identity map.
+It is easy to verify that composition of measurable maps is associative because it is based on composition of the underlying
+maps of the set of points of the measurable spaces, and that is associative
+Identity maps also exist for measurable spaces because the identity map of the underlying set of points of a measurable space is always itself a measurable map. The set of measurable spaces and maps therefore forms a category.
 
 \subsection{Probability Spaces}
 
+Let $S$ be a measurable space with points $X$ and measurable sets $\calE$.
+A {\it probability measure} on $S$ is a function $P : \calE \fun I$ that maps each measurable set to a probability, and that satisfies the following conditions.
+The empty set has probability $0$ and the whole set has probability $1$.
+\begin{eqnarray}
+	P(\emptyset) = 0 \\
+	P(X) = 1
+\end{eqnarray}
+Let $A_1, A_2, \ldots$ be a countable sequence of mutually disjoint measurable sets. 
+The probability of their union is the sum of the probabilities of each set in the sequence.
+\begin{equation}
+	P(A_1 \cup A_2 \cup \ldots) = P(A_1) + P(A_2) + \ldots
+\end{equation}
 
+A {\it probability space} is a structure that consists of a measurable space and a probability measure on it.
+Let $ProbabilitySpace[U]$ denote the set of all probability spaces on some universe $U$.
+\begin{schema}{ProbabilitySpace}[U]
+	MeasurableSpace[U] \\
+	P : sets \fun I
+\where
+	P(\emptyset) = \realzero
+\also
+	P(points) = \realone
+\also
+	\forall A : \seq sets | \disjoint A @ P(\bigcup \ran A) = sum(~ \lambda i : \nat_1 @ A(i) ~)
+\end{schema}
 
-
-\section{Measurable Spaces}
-
-A probability spaces is a type of measurable space.
-A measurable space $M =(X,A)$ is a set $X$ together with a distinguished set $A$ of subsets that are capable of being measured.
-The measurable sets are required to form a $\sigma$-algebra under the usual operators of set theory.
-
-The axioms for a $\sigma$-algebra of subsets of $X$ are as follows:
-\begin{itemize}
-\item The empty set is measurable: $\emptyset \in A$
-\item $X$ is measurable: $X \in A$
-\item The complement of a measurable set is measurable: $\forall Y \in A, X \setminus Y \in A$
-\item The union of a countable number of measurable sets is measurable: $\forall f: N -> A, \cup_{i \in N} f(i) \in A$
-\end{itemize}
-
-The axiom about the union of a countable number of measurable sets being measurable is related to the definition of the sum of infinite series.
-
-A consequence of these axioms is that the intersection of a countable number of measurable sets is also measurable.
-
-Clearly, if $X$ is any set then its power set $2^X$ is a $\sigma$-algebra.
 
 If A and B are sigma algebras on X, then so their intersection $A \cap B$.
 Given any collection C of subsets of X that is contained in the sigma algebras A and B, then C is also contained in their intersection.
@@ -201,6 +488,9 @@ A measure space satisfies the following axioms:
 \end{itemize}
 
 For example, if X is a countable set then m(Y) = \#Y is a measure.
+
+
+
 
 
 \bibliography{probability-and-statistics-refs}
