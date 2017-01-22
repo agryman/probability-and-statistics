@@ -106,7 +106,7 @@ Using Z Notation, each structure is defined as a {\it type}.
 New types are constructed by combining previously constructed types using standard mathematical operations such as forming cartesian products and power sets.
 Z Notation is based on {\it typed set theory} which was introduced by Bertrand Russell as a way to avoid certain paradoxes in the foundations
 of set theory.
-Anyone with some computer programming experience should be very comfortable with types since they are closely related to the datatypes
+Anyone with some software development experience should be very comfortable with types since they are closely related to the datatypes
 found in most programming languages.
 
 The benefit of using a formal language to define types is that all definitions can be automatically type-checked.
@@ -115,6 +115,74 @@ Stated informally, a type-checker makes sure that you are not trying to add appl
 
 The \LaTeX\ source for this article has been type-checked using the \fuzz\ type-checker \cite{spivey:fuzz}
 and is available in a GitHub repository \cite{agryman:probability-and-statistics}.
+
+\section{Category Theory}
+
+Category theory is based on the observation that many important mathematical structures consist of a set of {\it objects} connected by composable {\it arrows}.
+Such a set of objects and arrows is called a {\it category}.
+To illustrate this, consider the category of sets and binary relations.
+We need to be a little careful how we define this category.
+In particular, we don't want to say that the set of objects of this category is the set of all sets since that would lead us directly to the Russell paradox.
+The way Russell avoided this paradox was to use the concept of types, and we shall take that approach.
+Rather than define a single category of sets and binary relations, we'll define a family of them, parameterized by 
+some well-defined given set $U$.
+For any given set $U$, let $Rel[U]$ denote the category whose objects are subsets of $U$ and whose arrows are the binary relations
+on $U$.
+
+A binary relation from set $X$ to set $Y$ is a set of pairs $R \subseteq X \cross Y$.
+$X$ is called the {\it domain}, $Y$ is called the {\it codomain}, and $R$ is called the {\it graph} of the the relation.
+Let $BinRel[U]$ denote the set of all binary relations on U.
+\begin{schema}{BinRel}[U]
+	domain : \power U \\
+	codomain : \power U \\
+	graph : U \rel U
+\where
+	graph \in domain \rel codomain
+\end{schema}
+
+Given binary relations $f$ from $X$ to $Y$ and $g$ from $Y$ to $Z$, their {\it composition} $h = g \circ f$, read ``$g$ after $f$'', 
+is a binary relation from $X$ to $Z$.
+\begin{schema}{ComposeBinRel}[U]
+	f : BinRel[U] \\
+	g: BinRel[U] \\
+	h: BinRel[U]
+\where
+	g.domain = f.codomain
+\also
+	h.domain = f.domain \\
+	h.codomain = g.codomain
+\also
+	h.graph = g.graph \circ f.graph
+\end{schema}
+\begin{itemize}
+\item Composition is only defined when the domain of $g$ is the same as the codomain of $f$.
+\item The composition goes from the domain of $f$ to the codomain of $g$.
+\item The graph of the composition is the relational join of the graph of $f$ followed by the graph of $g$.
+\end{itemize}
+
+Composition is a partial binary operation on the set of binary relations.
+Let $composeBinRel[U]$ denote this operation.
+\begin{zed}
+	composeBinRel[U] == \\
+\t1		\{~ ComposeBinRel[U] @ (g,f) \mapsto h ~\}
+\end{zed}
+
+
+
+
+It is often useful to illustrate the relationships between objects and arrows in a category using {\it commutative diagrams}
+like Equation~\ref{cd:composition}.
+The nodes of the diagram are objects, e.g. sets, and the arcs between the nodes are arrows, e.g. binary relations.
+The diagram is commutative when the arrow that results from composing the arrows along a path is independent of the path.
+The following diagram is commutative by definition of composition.
+\begin{equation}
+\label{cd:composition}
+\begin{tikzcd}
+X \arrow{r}{f} \arrow{rd}[swap]{h = g \circ f}
+				&Y \arrow{d}{g} \\
+				&Z
+\end{tikzcd}
+\end{equation} 
 
 \section{Probability and Probability Spaces}
 
@@ -270,17 +338,18 @@ A collection of events must always include the impossible event and the certain 
 Suppose $A$ is an event.
 Since $A$ can be assigned a probability, so can its complement $ X \setminus A$, namely $1$ minus the probability of $A$.
 \begin{equation}
-	A \in {\cal E} \implies X \setminus A \in {\cal E}
+	X \setminus A \in {\cal E}
 \end{equation}
 
-Finally, let ${\cal A} = \{A_1, A_2, \ldots\}$ be a countable set of events. 
-The union and intersection of $\cal A$ must also be events.
+Finally, let $A_1, A_2, \ldots$ be a countable set of events. 
+The union and intersection of these events must also be events.
+\begin{eqnarray}
+	\bigcup_{i \in \nat_1} A_i \in {\cal E} \\
+	\bigcap_{i \in \nat_1} A_i \in {\cal E} 
+\end{eqnarray}
+
 The restriction to countable sets of events is natural because the probability of the union of a collection of mutually disjoint events must be the
 sum of the probabilities of the individual events, but we can only assign a well-defined mathematical meaning to the sum of countable sequences of non-zero numbers.
-\begin{eqnarray}
-	\forall i \in \nat @ A_i \in {\cal E} \implies \bigcup_{i \in \nat} A_i \in {\cal E} \\
-	\forall i \in \nat @ A_i \in {\cal E} \implies \bigcap_{i \in \nat} A_i \in {\cal E} 
-\end{eqnarray}
 Note that there is no requirement that uncountable unions and intersections of events must also be events.
 
 \subsection{$\sigma$-Algebras}
@@ -295,7 +364,7 @@ Let $SigmaAlgebra[X]$ denote the set of all $\sigma$-algebras on the set $X$.
 \also
 	\forall \calE : SigmaAlgebra @ \forall A : \calE @ X \setminus A \in \calE
 \also
-	\forall \calE : SigmaAlgebra @ \forall A : \seq \calE @ \bigcup (\ran A) \in \calE
+	\forall \calE : SigmaAlgebra @ \forall A : \nat_1 \fun \calE @ \bigcup (\ran A) \in \calE
 \end{gendef}
 \begin{itemize}
 \item $X$ is in the algebra.
@@ -317,10 +386,10 @@ collection of complements of sets.
 \end{eqnarray}
 Therefore, the intersection of a countable set of members of the algebra is also in the algebra.
 \begin{equation}
-	\forall \calE : SigmaAlgebra[X] @ \forall A : \seq \calE @ \bigcap (\ran A) \in \calE
+	\forall \calE : SigmaAlgebra[X] @ \forall A : \nat_1 \fun \calE @ \bigcap (\ran A) \in \calE
 \end{equation}
 
-It is easy to see that if $X$ is any set then $\power X$, the set of all subsets of $X$, is a $\sigma$-algebra.
+It is easy to see that if $X$ is any set then $\power X$ is a $\sigma$-algebra.
 \begin{equation}
 	\power X \in SigmaAlgebra[X]
 \end{equation}
@@ -330,10 +399,55 @@ Similarly, the collection $\{ \emptyset, X \}$ is a $\sigma$-algebra.
 	\{ \emptyset, X \} \in SigmaAlgebra[X]
 \end{equation}
 
-\subsection{Measurable Spaces}
+\subsubsection{The $\sigma$-algebra Generated by a Collection of Sets}
 
-A {\it measurable space} is a structure that consists of a set of points $X$ and a $\sigma$-algebra $\calE$ on $X$.
-The members of $\calE$ are referred to as {\it measurable sets}.
+Let $A$ and $B$ be $\sigma$-algebras on $X$.
+It is easy to show that $A \cap B$ is also a $\sigma$-algebra.
+Any collection $C$ of subsets of $X$ that is contained in both $A$ and $B$ is also contained in their intersection.
+The intersection $G$ of all $\sigma$-algebras that contain $C$ is therefore also a $\sigma$-algebra that contains $C$.
+It is in fact the smallest $\sigma$-algebra that contains $C$ and is referred to as the $\sigma$-algebra {\it generated} by $C$.
+Let $GeneratedSA$ denote the relation between $C$ and $G$.
+\begin{schema}{GeneratedSA}[X]
+	C : \power (\power X) \\
+	G : SigmaAlgebra[X]
+\where
+	G = \bigcap \{~ A : SigmaAlgebra[X] | C \subseteq A ~\}
+\end{schema}
+
+Let $generatedSA$ denote the function that maps a collection of sets to the $\sigma$-algebra generated by them.
+\begin{zed}
+	generatedSA[X] == \{~ GeneratedSA[X] @ C \mapsto G ~\}
+\end{zed}
+
+\subsubsection{The Borel Algebra}
+
+When dealing with the real numbers, we are interested in the sigma algebra generated by the set of all closed, bounded intervals. 
+Given real numbers $a$ and $b$, the closed, bounded interval defined by them is:
+\begin{equation}
+	[a,b] = \{~ x : \real | a \leq x \leq b ~\}
+\end{equation}
+
+Let $interval$ denote the function that maps $(a,b) \mapsto [a,b]$.
+\begin{axdef}
+	interval : \real \cross \real \fun \power \real
+\where
+	\forall a, b : \real @ interval(a,b) = \{~ x : \real | a \realleq x \realleq b ~\}
+\end{axdef}
+
+The {\it Borel algebra} is the $\sigma$-algebra generated by the closed, bounded intervals.
+Let $BorelAlgebra$ denote the Borel algebra.
+\begin{zed}
+	BorelAlgebra == generatedSA(\ran interval)
+\end{zed}
+The Borel algebra is the $\sigma$-algebra used in practice when dealing with probability distributions on $\real$.
+
+\subsection{The Category of Measurable Spaces}
+
+\subsubsection{Measurable Spaces}
+
+A {\it measurable space} is a structure that consists of a set of points from some universe $U$ and 
+a $\sigma$-algebra of sets of points.
+The sets in $\calE$ are referred to as {\it measurable sets}.
 Let $U$ be some universe from which the points of measurable spaces are drawn and let $MeasurableSpace[U]$ denote the set of all measurable spaces from that universe.
 \begin{schema}{MeasurableSpace}[U]
 	points : \power U \\
@@ -345,20 +459,21 @@ Let $U$ be some universe from which the points of measurable spaces are drawn an
 \item The measurable sets form a $\sigma$-algebra on the points of the space.
 \end{itemize}
 
+\subsubsection{Measurable Maps}
 
-Category theory teaches us that important mathematical structures are connected to each other through structure-preserving maps.
+Category theory teaches us that important mathematical structures are related to each other through structure-preserving maps.
 What are the structure-preserving maps between measurable spaces?
 To answer this question, note the similarity between measurable spaces and topological spaces.
 Both structures are defined by a set of points and a distinguished collection of subsets of points.
 In topological spaces, the distinguished collection of subsets are called the open sets and the structure-preserving maps are the continuous
 functions, namely those maps for which the inverse image of an open set is open.
-This definition applies directly to measurable spaces.
+This definition of structure-preserving map also applies to measurable spaces.
 
 A {\it measurable map} from one measurable space to another is a function from the points of one to the other such that the inverse image
 of a measurable set is measurable.
 Let $U$ and $V$ be universes of points and let $R$ and $S$ be measurable spaces on $U$ and $V$. 
 Let $MeasurableMap[U,V]$ denote the set of all measurable maps from $R$ to $S$.
-$S$ is called the domain of the map and $T$ is called the codomain.
+$R$ is called the domain of the map and $S$ is called the codomain.
 \begin{schema}{MeasurableMap}[U,V]
 	domain : MeasurableSpace[U] \\
 	codomain : MeasurableSpace[V] \\
@@ -370,29 +485,26 @@ $S$ is called the domain of the map and $T$ is called the codomain.
 \end{schema}
 \begin{itemize}
 \item The map sends the points of the domain to the point of the codomain.
-\item The inverse images of each measurable set in the codomain is a measurable set in the domain.
+\item The inverse image of each measurable set in the codomain is a measurable set in the domain.
 \end{itemize}
 
-Category theory further teaches us that certain pairs of so-called {\it composable} maps can be composed to form other maps.
+\subsubsection{Composition of Measurable Maps}
+
+Category theory further teaches us that the set of all structure-preserving maps should themselves have an algebraic structure
+defined by composition.
 Let $R$, $S$, and $T$ be measurable spaces and let $f$ and $g$ be measurable maps from $R$ to $S$ and from $S$ to $T$.
-Then $g$ and $f$ are composable.
-Let $ComposableMM$ denote the set of all pairs $(g,f)$ of measurable maps that are composable.
-\begin{gendef}[U,V,W]
-	ComposableMM : \\
-\t1		MeasurableMap[V,W] \rel MeasurableMap[U,V]
-\where
-	ComposableMM = \\
-\t1		\{~  g : MeasurableMap[V,W] ; f : MeasurableMap[U,V] | \\
-\t2			g.domain = f.codomain ~\}
-\end{gendef}
-\begin{itemize}
-\item  The domain of $g$ must be the codomain of $f$.
-\end{itemize}
+Then $g$ and $f$ are {\it composable} and
+the {\it composition} of $g$ after $f$ is the measurable map $h$ from $R$ to $T$ obtained by first applying $f$ and then applying $g$.
+The composition $h$ is written $g \circ f$.
 
-The composition $h$ of $g$ and $f$ is the measurable map from $R$ to $T$ obtained by first applying $f$ and then applying $g$.
-The composition is written $h = g \circ f$. 
-Let $CompositionMM$ denote the relationship between $f$, $g$, and $h$.
-\begin{schema}{CompositionMM}[U,V,W]
+Note that the composition $g \circ f$ is indeed a measurable map. 
+Let $A$ be a measurable set in $T$.
+Then $g\inv\limg A \rimg$ is a measurable set in $S$ because $g$ is measurable
+and $f\inv\limg (g\inv\limg A \rimg) \rimg$ is a measurable set in $R$ because $f$ is measurable.
+But $(g\circ f)\inv\limg A \rimg = f\inv\limg (g\inv\limg A \rimg) \rimg$ so $g \circ f$ is measurable.
+ 
+Let $ComposeMM$ denote the composition relationship $h = g \circ f$ on $f$, $g$, and $h$.
+\begin{schema}{ComposeMM}[U,V,W]
 	f: MeasurableMap[U,V] \\
 	g: MeasurableMap[V,W] \\
 	h: MeasurableMap[U,W]
@@ -404,94 +516,161 @@ Let $CompositionMM$ denote the relationship between $f$, $g$, and $h$.
 	h.map = g.map \circ f.map
 \end{schema}
 \begin{itemize}
-\item $(g, f)$ must be composable.
+\item $(g, f)$ are composable.
 \item $h$ is uniquely determined by $f$ and $g$.
 \end{itemize}
 
-Note that the composition $g \circ f$ is indeed a measurable map. 
-Let $A$ be a measurable set in $T$.
-Then $g\inv\limg A \rimg$ is a measurable set in $S$ because $g$ is measurable
-and $f\inv\limg (g\inv\limg A \rimg) \rimg$ is a measurable set in $R$ because $f$ is measurable.
-But $(g\circ f)\inv\limg A \rimg = f\inv\limg (g\inv\limg A \rimg) \rimg$ so $g \circ f$ is measurable.
-
-Let $ComposeMM$ denote the operation that maps each composable pair $(g,f)$ to $h = g \circ f$.
-\begin{gendef}[U,V,W]
-	ComposeMM : \\
-\t1		ComposableMM[U,V,W] \fun MeasurableMap[U,W]
-\where
-	ComposeMM = \\
-\t1		\{~  CompositionMM[U,V,W] @ (g, f) \mapsto h ~\}
-\end{gendef}
+Let $composeMM$ denote the operation that maps each composable pair $(g,f)$ to $h = g \circ f$.
+\begin{zed}
+	composeMM[U,V,W] == \\
+\t1		\{~  ComposeMM[U,V,W] @ (g, f) \mapsto h ~\}
+\end{zed}
  
-It is often useful to illustrate the relationships between objects and maps in a category using {\it commutative diagrams}
-like the one below.
-The nodes of the diagram are objects, e.g. measurable spaces, and the arrows between the nodes are maps, e.g. measurable maps.
-The diagram is commutative when the map that results from composing the maps along a path is independent of the path.
-The following diagram is commutative by definition of composition.
-\begin{equation}
-\begin{tikzcd}
-R \arrow{r}{f} \arrow{rd}[swap]{h = g \circ f}
-				&S \arrow{d}{g} \\
-				&T
-\end{tikzcd}
-\end{equation} 
-
 There are two other properties that are required for a set of objects and maps to form a category, namely that the composition operation
 is associative and that each object has an associated identity map.
 It is easy to verify that composition of measurable maps is associative because it is based on composition of the underlying
 maps of the set of points of the measurable spaces, and that is associative
 Identity maps also exist for measurable spaces because the identity map of the underlying set of points of a measurable space is always itself a measurable map. The set of measurable spaces and maps therefore forms a category.
 
-\subsection{Probability Spaces}
+\subsection{The Category of Probability Spaces}
+
+The definition of a probability space involves summing infinite series.
+This section starts by repeating the required definitions from real analysis and
+then moves on to the definition of probability measures and their maps.
+
+\subsubsection{Convergent Sequences}
+
+A sequence of real numbers $x_1, x_2, \ldots$ is said to {\it converge} to the {\it limit} $y$ if:
+\begin{equation}
+	\forall \epsilon > 0 @ \exists N @ \forall i \geq N @ ~| y - x_i|~ < \epsilon
+\end{equation}
+In this case we write:
+\begin{equation}
+\lim_{i \rightarrow \infty} x_i = y
+\end{equation}
+
+\newcommand{\realabs}{abs}
+
+%%\begin{axdef}
+%%	\realabs : \real \fun \real
+%%\end{axdef}
+
+Let $Lim$ denote the set of all convergent sequences and their limits.
+\begin{schema}{Lim}
+	x : \nat_1 \fun \real \\
+	y : \real
+\where
+	\forall \epsilon : \real | \epsilon \realgt \realzero @ \\
+\t1		\exists N : \nat_1 @ \\
+\t2			\forall i : \nat_1 | i \geq N @ \\
+\t3				\realabs(y \realsub x(i)) \reallt \epsilon
+\end{schema}
+\begin{itemize}
+\item The numbers in the sequence eventually become arbitrarily close to the limit.
+\end{itemize}
+
+Let $convergentSequence$ denote the set if all convergent sequences.
+\begin{zed}
+	convergentSequence == \{~ Lim @ x ~\}
+\end{zed}
+
+Note that if a sequence converges then its limit is unique.
+
+\newcommand{\reallim}{\lim}
+
+Let $\reallim$ denote the function that maps a convergent sequence to its limit.
+\begin{zed}
+	\reallim== \{~ Lim @ x \mapsto y ~\}
+\end{zed}
+
+\subsubsection{Convergent Series}
+
+Consider an infinite sequence of real numbers $a_1, a_2, \ldots$.
+Its {\it partial sums} $x_1, x_2, \ldots$ are defined to be:
+\begin{eqnarray}
+	x_n = a_1 + \cdots + a_n = \sum_{i = 1}^n a_i
+\end{eqnarray}
+
+Let $PartialSums$ denote the set of all infinite sequences and their partial sums.
+\begin{schema}{PartialSums}
+	a : \nat_1 \fun \real \\
+	x : \nat_1 \fun \real
+\where
+	x(1) = a(1)
+\also
+	\forall n : \nat_1 @ x(n + 1) = x(n) \realadd a(n + 1)
+\end{schema}
+
+Let $partialSums$ denote the function that maps an infinite sequence to its partial sums.
+\begin{zed}
+	partialSums == \{~ PartialSums @ a \mapsto x ~\}
+\end{zed}
+
+An infinite series of real numbers $a_1 + a_2 + \cdots$ is said to converge to the sum $y$ when its
+sequence of partial sums converges to $y$.
+
+\begin{schema}{Sum}
+	a : \nat_1 \fun \real \\
+	y : \real
+\where
+	\LET x == partialSums(a) @ \\
+\t1		Lim \land \\
+\t1		\reallim(x) = y
+\end{schema}
+
+Let $convergentSeries$ denote the set of all convergent series.
+\begin{zed}
+	convergentSeries == \{~ Sum @ a ~\}
+\end{zed}
+
+\newcommand{\realsum}{\sum}
+
+Let $\realsum$ denote the function that maps a convergent series to its sum.
+\begin{zed}
+	\realsum == \{~ Sum @ a \mapsto y ~\}
+\end{zed}
+
+\subsubsection{Probability Measures}
 
 Let $S$ be a measurable space with points $X$ and measurable sets $\calE$.
-A {\it probability measure} on $S$ is a function $P : \calE \fun I$ that maps each measurable set to a probability, and that satisfies the following conditions.
-The empty set has probability $0$ and the whole set has probability $1$.
+A {\it probability measure} on $S$ is a function $P : \calE \fun I$ that satisfies the following conditions:
+\begin{itemize}
+
+\item The empty set has probability $0$.
 \begin{eqnarray}
-	P(\emptyset) = 0 \\
+	P(\emptyset) = 0
+\end{eqnarray}
+
+\item The whole space has probability $1$
+\begin{eqnarray}
 	P(X) = 1
 \end{eqnarray}
-Let $A_1, A_2, \ldots$ be a countable sequence of mutually disjoint measurable sets. 
+
+\item Let $A_1, A_2, \ldots$ be a countable sequence of mutually disjoint measurable sets. 
+\begin{equation}
+	i \neq j \implies A_i \cap A_j = \emptyset
+\end{equation}
 The probability of their union is the sum of the probabilities of each set in the sequence.
 \begin{equation}
 	P(A_1 \cup A_2 \cup \ldots) = P(A_1) + P(A_2) + \ldots
 \end{equation}
 
+\end{itemize}
+
 A {\it probability space} is a structure that consists of a measurable space and a probability measure on it.
 Let $ProbabilitySpace[U]$ denote the set of all probability spaces on some universe $U$.
 \begin{schema}{ProbabilitySpace}[U]
 	MeasurableSpace[U] \\
-	P : sets \fun I
+	P : \power U \pfun I
 \where
-	P(\emptyset) = \realzero
+	P \in sets \fun I
 \also
+	P(\emptyset) = \realzero \\
 	P(points) = \realone
 \also
-	\forall A : \seq sets | \disjoint A @ P(\bigcup \ran A) = sum(~ \lambda i : \nat_1 @ A(i) ~)
+	\forall A : \nat_1 \fun sets | \disjoint A @ \\
+\t1		P(\bigcup (\ran A)) = \realsum(P \circ A)
 \end{schema}
-
-
-If A and B are sigma algebras on X, then so their intersection $A \cap B$.
-Given any collection C of subsets of X that is contained in the sigma algebras A and B, then C is also contained in their intersection.
-Therefore, the intersection of all sigma algebras that contain C is also a sigma-algebra that contains C. It is the sigma-algebra generated by C.
-
-When dealing with the real numbers, we are interested in the sigma algebra generated by the set of all closed, bounded intervals. 
-
-A measure space is a measurable space together with a measure. 
-A measure if a function $m: A -> R^{+}$ that assigns to any measurable set, a non-negative real number, where we have extended the real numbers with positive infinity and defined addition in the obvious way.
-
-A measure space satisfies the following axioms:
-
-\begin{itemize}
-\item The empty set has measure 0: $m(\emptyset) = 0$
-\item The measure of the union of a countable sequence of disjoint measurable sets is the sum of the measures of the sets in the sequence: $\forall f: N -> A | \forall i, j : N | i \neq j => A_i \cap A_j = \emptyset, m(\cup_i A_i) = \Sigma_i m(A_i)$
-\end{itemize}
-
-For example, if X is a countable set then m(Y) = \#Y is a measure.
-
-
-
-
 
 \bibliography{probability-and-statistics-refs}
 
