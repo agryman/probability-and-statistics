@@ -1,0 +1,168 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+
+\title{Rotational Symmetry}
+\author{Arthur Ryman}
+\date{\today}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Introduction}
+
+I recently needed to generate a random sample from the uniform distribution on the sphere $S^n$ where $n$ was very large.
+My strategy was to generate a rotationally symmetric sample of non-zero vectors $v$ in some region of $\mathbb{R}^{n+1}$
+and then normalize those to get unit vectors $u = v/\|v\|$ on $S^n$.
+I first attempted to generate a random sample from the uniform distribution on the cube $[-1,1]^n$ and then take the subset of those
+vectors $v$ such that $0 < \|v\| \leq 1$.
+However, it turns out that the volume enclosed by $S^n$ becomes a very small fraction of the volume of $[-1,1]^n$ as $n$ gets large.
+The probability that $\|v\| \leq 1$ goes to zero, so this approach fails.
+
+I then remembered the well-known fact that the distribution of $n$ independent and identically  distributed (IID) standard normal variates is rotationally symmetric.
+This symmetry seems miraculous and in fact only occurs for the normal distribution.
+This article gives a proof of that fact.
+
+\section{Rotational Symmetry of $2$ IID Variates}
+
+Let the usual polar coordinate system on the plane be:
+$$
+\begin{aligned}
+x &= r \cos \theta \\
+y &= r \sin \theta
+\end{aligned}
+$$
+
+Note that:
+$$
+\begin{aligned}
+\frac{\partial}{\partial\theta}	&= \frac{\partial x}{\partial\theta} \frac{\partial}{\partial x} + \frac{\partial y}{\partial\theta} \frac{\partial}{\partial y} \\
+						&= -r \sin\theta \frac{\partial}{\partial x} + r \cos\theta \frac{\partial}{\partial y} \\
+						&= -y\frac{\partial}{\partial x} + x\frac{\partial}{\partial y} 
+\end{aligned}
+$$
+
+A function $F$ on the plane is rotationally symmetric when it is independent of $\theta$, i.e.:
+$$
+\frac{\partial F}{\partial \theta} = 0
+$$
+or, in terms of $x$ and $y$:
+$$
+-y\frac{\partial F}{\partial x} + x\frac{\partial F}{\partial y} = 0
+$$
+Therefore, a rotationally symmetric function must satisfy the following linear partial differential equation:
+$$
+x\frac{\partial F}{\partial y} = y\frac{\partial F}{\partial x}
+$$
+
+The probability density function $f$ of a normal distribution with mean zero and variance $\sigma^2$ is
+$$
+f(x) = Ce^{-\frac{x^2}{2\sigma^2}}
+$$
+where the normalization factor is $C=1/\sqrt{2\pi}$.
+
+\begin{theorem}
+The joint distribution of two IID random variates is rotationally symmetric if and only the random variates are normally distributed with mean zero.
+\end{theorem}
+
+\begin{proof}
+
+First prove that the distribution of two IID normal variates with mean zero is rotationally symmetric.
+The probability density function $F$ of the joint distribution is:
+$$
+\begin{aligned}
+F(x,y)	&= f(x)f(y) \\
+		&= Ce^{-\frac{x^2}{2\sigma^2}}Ce^{-\frac{y^2}{2\sigma^2}} \\
+		&= C^2e^{-\frac{x^2}{2\sigma^2}-\frac{y^2}{2\sigma^2}} \\
+		&= C^2 e^{-\frac{x^2+y^2}{2\sigma^2}} \\
+		&= C^2 e^{-\frac{r^2}{2\sigma^2}}
+\end{aligned}
+$$
+
+which does not depend on $\theta$.
+Therefore the joint distribution is rotationally symmetric.
+
+Now prove that if the joint distribution of two IID variates is rotationally symmetric then the variates are normally distributed with mean zero.
+Let $g$ be the probability density function of any random variate such that the joint distribution
+$$G(x,y) = g(x)g(y)$$ 
+is rotationally symmetric.
+The partial derivatives of $G$ are:
+$$
+\begin{aligned}
+\frac{\partial G}{\partial x} &= g'(x)g(y) \\
+\frac{\partial G}{\partial y} &= g(x)g'(y)
+\end{aligned}
+$$
+The condition for rotational symmetry is:
+$$
+x\frac{\partial G}{\partial y} = y\frac{\partial G}{\partial x}
+$$
+Substituting in the expressions for the partial derivatives of $G$ we have:
+$$
+x g(x)g'(y) = y g'(x)g(y)
+$$
+Dividing both sides by $x y g(x) g(y)$ we have:
+$$
+\frac{g'(x)}{x g(x)} = \frac{g'(y)}{y g(y)}
+$$
+The LHS depends only on $x$ and the RHS depends only on $y$.
+But $x$ and $y$ can vary independently.
+Therefore each side of the equation must be equal to some constant, say $\alpha$:
+$$
+\frac{g'(x)}{x g(x)} = \alpha
+$$
+Using the identity $(\ln g)'(x) = g'(x)/g(x)$ we can rewrite the preceeding equation as:
+$$
+(\ln g)'(x) = \alpha x
+$$
+Integrating, we get:
+$$
+\ln g(x) = \frac{\alpha}{2} x^2 + \beta
+$$
+where $\beta$ is a constant of integration.
+Exponentiating, we get:
+$$
+\begin{aligned}
+g(x) 	&= e^{\frac{\alpha}{2} x^2 + \beta} \\
+	&= B e^{\frac{\alpha}{2} x^2}
+\end{aligned}
+$$
+where $B = e^\beta$.
+Since $g$ is a probability density function we must have
+$$
+\lim_{|x|\rightarrow\infty}g(x) = 0
+$$
+so $\alpha$ must be negative.
+
+Therefore setting
+$$
+\begin{aligned}
+\alpha 	&= -\frac{1}{\sigma^2} \\
+B 		&= C
+\end{aligned}
+$$
+we see that $g$ is the probability density function of a normal distribution with mean zero and variance $\sigma^2$.
+\end{proof}
+
+\section{Rotational Symmetry of $n$ IID Variates}
+
+\begin{theorem}
+The joint distribution of $n$ IID random variates is rotationally symmetric if and only the random variates are normally distributed with mean zero.
+\end{theorem}
+
+\begin{proof}
+Clearly, the joint distribution of $n$ IID normal variates with mean zero is rotationally symmetric.
+
+To prove the converse it suffices to consider rotations in the plane defined by any pair of coordinates. 
+The preceding theorem implies that the variates are normal with mean zero.
+\end{proof}
+
+\end{document}  
